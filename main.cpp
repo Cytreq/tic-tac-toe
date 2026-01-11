@@ -4,6 +4,7 @@
 #include <ctype.h>
 /// board creation 
 int BoardSize = 5;
+char player1symbol = 'X', player2symbol = 'O';
 std::vector<std::vector<char>> board(BoardSize, std::vector<char>(BoardSize, ' '));
 void print_board(){
     std::cout << " ";
@@ -58,7 +59,60 @@ void play_pvp()
 
 }
 void open_settings(){
+    std::string choice;
+    while(true)
+    {
+        std::cout << "Ustawienia gry \n";
+        std::cout << " 1. Wybierz rozmiar planszy, obecnie " << BoardSize << "\n";
+        std::cout << "2. Zmień symbol gracza 1, obecnie" << player1symbol << "\n";
+        std::cout << "3. Zmień symbol gracza 2, obecnie" << player2symbol << "\n";
+        std::cout << "4. Wróc do menu głównego\n";
+        std::cout << "Twój wybór: ";
+        std::cin >> choice;
+        int choice_i = std::stoi(choice);
+        switch (choice_i)
+        {
+        case 1: {
+            std::string newSize_s;
+            std::cout << "Podaj nowy rozmiar planszy (od 3 do 10): ";
+            std::cin >> newSize_s;
 
+            if(!is_digit(newSize_s)) {
+                std::cout << "To nie liczba!\n";
+                break;
+            }
+
+            int newSize = std::stoi(newSize_s);
+
+            if(newSize >= 3 && newSize <= 10) {
+                BoardSize = newSize;
+                board = std::vector<std::vector<char>>(BoardSize, std::vector<char>(BoardSize, ' ')); 
+                std::cout << "Rozmiar planszy ustawiony na: " << BoardSize << "\n";
+            } else {
+                std::cout << "Niepoprawny rozmiar!\n";
+            }
+
+            break;
+} 
+
+        case 2:
+            std::cout << "Podaj symbol gracza 1: ";
+            std::cin >> player1symbol;
+            break;
+        case 3: 
+            std::cout << "Podaj symbol gracza 2: ";
+            std::cin >> player2symbol;
+            break;
+        case 4:
+            return;
+        default:
+            break;
+        }
+    }
+    
+}
+void make_move(char current_player, std::string input){
+    
 }
 int main(){
     while(true)
