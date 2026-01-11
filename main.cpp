@@ -15,7 +15,7 @@ void print_board(){
     for(int i = 0; i < BoardSize; i++)
     {
         int rowHeader = 0 + i;
-        std::cout << rowHeader;
+        std::cout << rowHeader << " ";
         for(int j = 0; j < BoardSize; j++)
         {
             std::cout << board[i][j] << " ";
@@ -31,9 +31,27 @@ bool is_digit(const std::string& s){
     }
     return true;
 }
-char parse_input()
+bool parse_input(std::string input, int& row, int& col)
 {
 
+        if(!std::isalpha(input[0]) || input.size() < 2)
+        {
+            return false;
+        }
+        for(int i = 1; i < input.size(); i++)
+        {
+            if(!std::isdigit(input[i]))
+            {
+                return false;
+            }
+        }
+        col = std::toupper(input[0]) - 'A';
+        row = std::stoi(input.substr(1));
+        if(col < 0 || col >= BoardSize) return false;
+        if(row < 0 || row >= BoardSize) return false;
+
+    return true;
+ 
 }
 void play_pvp()
 {
@@ -54,8 +72,10 @@ int main(){
         switch (game_mode){
             case 1:
                 play_pvp();
+                break;
             case 2:
                 open_settings();
+                break;
         }
     }
     print_board();
