@@ -1,29 +1,30 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <ctype.h>
-/// board creation 
-int BoardSize = 5;
-char player1symbol = 'X', player2symbol = 'O';
-std::vector<std::vector<char>> board(BoardSize, std::vector<char>(BoardSize, ' '));
-void print_board(){
-    std::cout << " ";
-    for(int j = 0; j < BoardSize; j++)
-    {
+#include <cctype>
+#include <iomanip>
+struct GameSettings {
+    char player1symbol = 'X', player2symbol = 'O';
+    int BoardSize = 5;
+};
+
+void print_board(const GameSettings& settings, const std::vector<std::vector<char>>& board) {
+    std::cout << std::setw(3) << " "; 
+    for(int j = 0; j < settings.BoardSize; j++) {
         char colHeader = 'A' + j;
-        std::cout << colHeader;
+        std::cout << std::setw(3) << colHeader;
     }
-    for(int i = 0; i < BoardSize; i++)
-    {
-        int rowHeader = 0 + i;
-        std::cout << rowHeader << " ";
-        for(int j = 0; j < BoardSize; j++)
-        {
-            std::cout << board[i][j] << " ";
+    std::cout << "\n";
+
+    for(int i = 0; i < settings.BoardSize; i++) {
+        std::cout << std::setw(3) << i; 
+        for(int j = 0; j < settings.BoardSize; j++) {
+            std::cout << std::setw(3) << board[i][j]; 
         }
-        std::cout << std::endl;
+        std::cout << "\n";
     }
 }
+
 bool is_digit(const std::string& s){
     if(s.empty()) return false;
     for(char c : s)
@@ -32,7 +33,7 @@ bool is_digit(const std::string& s){
     }
     return true;
 }
-bool parse_input(std::string input, int& row, int& col)
+bool parse_input(const std::string& input, int& row, int& col, const GameSettings& settings)
 {
 
         if(!std::isalpha(input[0]) || input.size() < 2)
@@ -48,26 +49,22 @@ bool parse_input(std::string input, int& row, int& col)
         }
         col = std::toupper(input[0]) - 'A';
         row = std::stoi(input.substr(1));
-        if(col < 0 || col >= BoardSize) return false;
-        if(row < 0 || row >= BoardSize) return false;
+        if(col < 0 || col >= settings.BoardSize) return false;
+        if(row < 0 || row >= settings.BoardSize) return false;
 
     return true;
  
 }
-void play_pvp()
-{
-
-}
-void open_settings(){
+void open_settings(GameSettings& settings){
     std::string choice;
     while(true)
     {
         std::cout << "Ustawienia gry \n";
-        std::cout << " 1. Wybierz rozmiar planszy, obecnie " << BoardSize << "\n";
-        std::cout << "2. Zmień symbol gracza 1, obecnie" << player1symbol << "\n";
-        std::cout << "3. Zmień symbol gracza 2, obecnie" << player2symbol << "\n";
-        std::cout << "4. Wróc do menu głównego\n";
-        std::cout << "Twój wybór: ";
+        std::cout << " 1. Wybierz rozmiar planszy, obecnie " << settings.BoardSize << "\n";
+        std::cout << "2. Zmień symbol gracza 1, obecnie" << settings.player1symbol << "\n";
+        std::cout << "3. Zmień symbol gracza 2, obecnie" << settings.player2symbol << "\n";
+        std::cout << "4. Wroc do menu glownego\n";
+        std::cout << "Twoj wybor: ";
         std::cin >> choice;
         int choice_i = std::stoi(choice);
         switch (choice_i)
@@ -85,23 +82,22 @@ void open_settings(){
             int newSize = std::stoi(newSize_s);
 
             if(newSize >= 3 && newSize <= 10) {
-                BoardSize = newSize;
-                board = std::vector<std::vector<char>>(BoardSize, std::vector<char>(BoardSize, ' ')); 
-                std::cout << "Rozmiar planszy ustawiony na: " << BoardSize << "\n";
+                settings.BoardSize = newSize;
+
+                std::cout << "Rozmiar planszy ustawiony na: " << settings.BoardSize << "\n";
             } else {
                 std::cout << "Niepoprawny rozmiar!\n";
             }
 
             break;
 } 
-
         case 2:
             std::cout << "Podaj symbol gracza 1: ";
-            std::cin >> player1symbol;
+            std::cin >> settings.player1symbol;
             break;
         case 3: 
             std::cout << "Podaj symbol gracza 2: ";
-            std::cin >> player2symbol;
+            std::cin >> settings.player2symbol;
             break;
         case 4:
             return;
@@ -109,12 +105,39 @@ void open_settings(){
             break;
         }
     }
-    
 }
-void make_move(char current_player, std::string input){
-    
+bool make_move(char current_player,  std::vector<std::vector<char>>& board, const GameSettings& settings){
+    std::string input;
+    std::cin >> input;
+    int row, col;
+    if(!parse_input(input, row, col, settings))
+    {
+     std::cout << "Zle dane\n";   
+     return false;
+    }
+    if(board[row][col] != ' ')
+    {
+        std::cout << "To pole jest juz zajete";
+        return false;
+    }
+    board[row][col] = current_player;
+    return true;
+}
+void play_pvp(const GameSettings& settings)
+{
+    std::vector<std::vector<char>> board(settings.BoardSize, std::vector<char>(settings.BoardSize, ' '));
+    char Current_Player = settings.player1symbol;
+    while(true)
+    {
+        print_board(settings, board);
+        if(make_move(Current_Player, board, settings))
+        {
+            Current_Player = (Current_Player == settings.player1symbol) ? settings.player2symbol : settings.player1symbol;
+        }
+    }
 }
 int main(){
+    GameSettings settings;
     while(true)
     {
         std::string game_mode_str;
@@ -125,14 +148,12 @@ int main(){
         if(game_mode < 1 || game_mode > 2) continue;
         switch (game_mode){
             case 1:
-                play_pvp();
+                play_pvp(settings);
                 break;
             case 2:
-                open_settings();
+                open_settings(settings);
                 break;
         }
     }
-    print_board();
-    std::cin.get();
     return 0;
 }
