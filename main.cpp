@@ -6,6 +6,7 @@
 struct GameSettings {
     char player1symbol = 'X', player2symbol = 'O';
     int BoardSize = 5;
+    int SymbolsToWin = 3;
 };
 
 void print_board(const GameSettings& settings, const std::vector<std::vector<char>>& board) {
@@ -122,6 +123,57 @@ bool make_move(char current_player,  std::vector<std::vector<char>>& board, cons
     }
     board[row][col] = current_player;
     return true;
+}
+
+bool check_draw(const std::vector<std::vector<char>>& board)
+{
+    for(const auto& row : board){
+        for(const auto& cell : row){
+            if(cell == ' ') return false;
+        }
+    }
+    return true; 
+}
+bool check_win_row(const GameSettings& settings, const std::vector<std::vector<char>>& board, int row, int col, char CurrentPlayer){
+    int count = 1;
+    int i = col - 1; /// w lewo 
+    while(i >= 0 && board[row][i] == CurrentPlayer)
+    {
+        count++;
+        i--;
+    }
+    i = col + 1; /// w prawo 
+    while(i < settings.BoardSize && board[row][i] == CurrentPlayer)
+    {
+        count++;
+        i++;
+    }
+    if(!(count >= settings.SymbolsToWin)) return false;
+
+    return true;
+}
+bool check_win_col(const GameSettings& settings, const std::vector<std::vector<char>>& board, int row, int col, char CurrentPlayer)
+{
+    int count = 1;
+    int i = row - 1; /// w góre 
+    while(i <= 0 && board[i][col] == CurrentPlayer){
+        count++;
+        i--;
+    }
+    i = row + 1;
+    while(i < settings.BoardSize && board[i][col] == CurrentPlayer){
+        count++;
+        i++;
+    }
+    if(!(count >= settings.SymbolsToWin)) return false;
+
+    return true;
+}
+bool check_win_diagonal(const GameSettings& settings, const std::vector<std::vector<char>>& board, int row, int col, char CurrentPlayer)
+{
+
+
+    /// To do :  1 przekątna, 2 przekątna 
 }
 void play_pvp(const GameSettings& settings)
 {
